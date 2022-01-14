@@ -25,7 +25,7 @@ default: image
 	docker buildx create --platform $(PLATFORM) --name multibuild --use
 	docker buildx inspect multibuild --bootstrap
 	docker buildx build --platform $(PLATFORM) --build-arg PG_VERSION_TAG=$(PG_VER) \
-		--build-arg POSTGIS_VERSION=$(POSTGIS_VERSION) $(TAG) $(PUSH_MUTLI) .
+		--build-arg TS_VERSION=$(TS_VERSION) --build-arg POSTGIS_VERSION=$(POSTGIS_VERSION) $(TAG) $(PUSH_MUTLI) .
 	touch .multi_$(TS_VERSION)_$(PG_VER)
 	docker buildx rm multibuild
 
