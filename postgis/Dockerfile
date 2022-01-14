@@ -1,4 +1,5 @@
 ARG PG_VERSION_TAG
+ARG TS_VERSION
 FROM timescale/timescaledb:${TS_VERSION}-${PG_VERSION_TAG}
 
 LABEL maintainer="Timescale https://www.timescale.com"
