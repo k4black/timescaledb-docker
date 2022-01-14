@@ -1,11 +1,16 @@
-name: Docker Image CI
-
+name: Release Docker Image
 on:
   push:
-    branches: [ master, dev-build ]
+    branches: [ master, release_docker, dev-build ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release'
+        required: true
 
 env:
   ORG: k4black # timescale # timescaledev
+  TS_VERSION: ${{ github.event.inputs.version || '2.5.0' }}
 
 jobs:
 
@@ -17,9 +22,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pg: [ 11, 12, 13 ]
+        pg: [12, 13, 14]
         oss: [ "", "-oss" ]
-
     steps:
     - uses: actions/checkout@v2
 
@@ -39,7 +43,7 @@ jobs:
       run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
 
     - name: Build and push multi-platform Docker image for TimescaleDB
-      run: make multi${{ matrix.oss }} ORG=$ORG PG_VER=pg${{ matrix.pg }}
+      run: make multi${{ matrix.oss }} ORG=$ORG PG_VER=pg${{ matrix.pg }} TS_VERSION=$TS_VERSION PREV_EXTRA="${{ matrix.oss }}"
 
   # Build bitnami images of TimscaleDB.
   # The images are built only for amd64, since it is the only supported architecture in the base image bitname/postgresql.
@@ -51,7 +55,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pg: [ 11, 12, 13 ]
+        pg: [12, 13, 14]
 
     steps:
     - uses: actions/checkout@v2
@@ -60,7 +64,7 @@ jobs:
       run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
 
     - name: Build and push amd64 Docker image for TimescaleDB bitnami
-      run: make push ORG=$ORG PG_VER=pg${{ matrix.pg }}
+      run: make push ORG=$ORG PG_VER=pg${{ matrix.pg }} TS_VERSION=$TS_VERSION
       working-directory: bitnami
 
   # Builds image, which extends TimescaleDB image with PostGIS. Thus it depends on the job timescaledb.
