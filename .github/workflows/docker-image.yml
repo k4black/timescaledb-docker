@@ -79,7 +79,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pg: [ 11, 12, 13 ]
+        pg: [ 12, 13, 14 ]
 
     steps:
     - uses: actions/checkout@v2
@@ -100,5 +100,5 @@ jobs:
       run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
 
     - name: Build and push multi-platform Docker image for TimescaleDB-postgis
-      run: make multi ORG=$ORG PG_VER=pg${{ matrix.pg }}
+      run: make multi ORG=$ORG PG_VER=pg${{ matrix.pg }} TS_VERSION=$TS_VERSION
       working-directory: postgis
